@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Override global white nav-link color for these tabs */
+    .nav-tabs .nav-link {
+        color: #1F2A2A !important;
+        border: none;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #00A884 !important;
+        background-color: transparent !important;
+        border-bottom: 2px solid #00A884 !important;
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background-color: rgba(0, 168, 132, 0.05) !important;
+        border-bottom: 2px solid #78D6B6 !important;
+    }
+</style>
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-2">Subscription Management</h1>
+            <p class="lead text-muted">Manage subscription plans and monitor doctor subscriptions</p>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs border-bottom" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="plans-tab" onclick="switchTab('plans')" type="button" role="tab"
+                        aria-controls="plans" aria-selected="true">
+                        <i class="fas fa-list me-2"></i>Subscription Plans
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="subscriptions-tab" onclick="switchTab('subscriptions')" type="button"
+                        role="tab" aria-controls="subscriptions" aria-selected="false">
+                        <i class="fas fa-users me-2"></i>Active Subscriptions
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payments-tab" onclick="switchTab('payments')" type="button" role="tab"
+                        aria-controls="payments" aria-selected="false">
+                        <i class="fas fa-credit-card me-2"></i>Payment History
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Plans Tab -->
+    <div id="plans" class="tab-content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="{{ url_for('create_subscription_plan') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create New Plan
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for plan in plans %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-lg h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-1">{{ plan.name }}</h5>
+                        <small class="text-white-50">{{ plan.description }}</small>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h3 class="display-6 mb-0">₹{{ plan.price|int }}<small class="text-muted">/month</small>
+                            </h3>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="mb-2"><strong>Duration:</strong> {{ plan.duration_days }} days</p>
+                            <p class="mb-2"><strong>Max Appointments:</strong> {{ plan.max_appointments }}/month</p>
+                            <p class="mb-3"><strong>Status:</strong>
+                                <span class="badge {% if plan.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if plan.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="fw-semibold mb-2">Features:</p>
+                            <small class="text-muted d-block">{{ plan.features }}</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('edit_subscription_plan', plan_id=plan.id) }}"
+                                class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_subscription_plan', plan_id=plan.id) }}"
+                                onsubmit="return confirm('Are you sure you want to delete this plan?');">
+                                <button type="submit" class="btn btn-danger btn-sm w-100">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not plans %}
+        <div class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>No subscription plans created yet. <a
+                href="{{ url_for('create_subscription_plan') }}" class="alert-link">Create one now</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Active Subscriptions Tab -->
+    <div id="subscriptions" class="tab-content d-none">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fas fa-user-md me-2"></i>Doctor</th>
+                        <th><i class="fas fa-box me-2"></i>Plan</th>
+                        <th><i class="fas fa-calendar-alt me-2"></i>Start Date</th>
+                        <th><i class="fas fa-calendar-check me-2"></i>End Date</th>
+                        <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                        <th><i class="fas fa-chart-bar me-2"></i>Appointments Used</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in doctor_subscriptions %}
+                    <tr>
+                        <td>{{ sub.doctor.user.name }}</td>
+                        <td>{{ sub.plan.name }}</td>
+                        <td>{{ sub.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ sub.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <span
+                                class="badge {% if sub.status == 'active' %}bg-success{% elif sub.status == 'expired' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ sub.status|upper }}
+                            </span>
+                        </td>
+                        <td>{{ sub.appointments_used }}/{{ sub.plan.max_appointments }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not doctor_subscriptions %}
+        <div class="alert alert-info text-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>No active subscriptions yet.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Payment History Tab -->
+    <div id="payments" class="tab-content d-none">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th><i class="fas fa-user-md me-2"></i>Doctor</th>
+                        <th><i class="fas fa-dollar-sign me-2"></i>Amount</th>
+                        <th><i class="fas fa-credit-card me-2"></i>Payment Method</th>
+                        <th><i class="fas fa-receipt me-2"></i>Transaction ID</th>
+                        <th><i class="fas fa-check-circle me-2"></i>Status</th>
+                        <th><i class="fas fa-calendar me-2"></i>Date</th>
+                        <th><i class="fas fa-cog me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.doctor.user.name }}</td>
+                        <td><strong>₹{{ payment.amount|int }}</strong></td>
+                        <td>{{ payment.payment_method|replace('_', ' ')|title }}</td>
+                        <td><code>{{ payment.transaction_id }}</code></td>
+                        <td>
+                            <span
+                                class="badge {% if payment.status == 'completed' %}bg-success{% elif payment.status == 'pending' %}bg-warning{% elif payment.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ payment.status|upper }}
+                            </span>
+                        </td>
+                        <td>{{ payment.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if payment.status == 'pending' %}
+                            <div class="d-flex gap-1">
+                                <form method="POST"
+                                    action="{{ url_for('admin_verify_payment', payment_id=payment.id, action='approve') }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST"
+                                    action="{{ url_for('admin_verify_payment', payment_id=payment.id, action='reject') }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span class="text-muted small">Verified</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not payments %}
+        <div class="alert alert-info text-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i>No payment history yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.add('d-none'));
+
+        // Remove active class from all buttons
+        const buttons = document.querySelectorAll('.nav-link');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // Show selected tab
+        document.getElementById(tabName).classList.remove('d-none');
+
+        // Add active class to clicked button
+        document.getElementById(tabName + '-tab').classList.add('active');
+    }
+</script>
+{% endblock %}

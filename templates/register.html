@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* 1. Default State: White background, Blue border, Black text */
+    .btn-check + .btn-outline-primary {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #0d6efd !important;
+        transition: all 0.2s ease-in-out;
+        font-weight: 500;
+    }
+
+    /* 2. Hover State: Slight light blue tint */
+    .btn-check + .btn-outline-primary:hover {
+        background-color: #f0f7ff !important;
+        border-color: #0a58ca !important;
+    }
+
+    /* 3. Selected State: Solid Blue background, White text */
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #0d6efd !important;
+        color: #ffffff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    }
+</style>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Register</h2>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+    <label for="user_type" class="form-label">Register as</label>
+    <select class="form-select" id="user_type" name="user_type" onchange="toggleSpecialization()" required>
+        
+        <option value="patient" {% if user_type == 'patient' %}selected{% endif %}>Patient</option>
+        
+        <option value="doctor" {% if user_type == 'doctor' %}selected{% endif %}>Doctor</option>
+    
+    </select>
+</div>
+                    <div class="mb-3">
+                        <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="city" name="city"
+                            placeholder="e.g. Mumbai, Delhi, etc." required>
+                    </div>
+
+                    <!-- Patient Age Category Field -->
+                    <div class="mb-3" id="age_div" style="display: none;">
+                        <label for="age_category" class="form-label">Age Category <span
+                                class="text-danger">*</span></label>
+                        <select class="form-select" id="age_category" name="age_category">
+                            <option value="Child">Child (0-12 years)</option>
+                            <option value="Adult" selected>Adult (13-64 years)</option>
+                            <option value="Old Age">Old Age (65+ years)</option>
+                        </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Select your age group for better doctor matching
+                        </div>
+                    </div>
+
+                    <!-- Doctor Specialization Field -->
+                    <div class="mb-3" id="specialization_div" style="display: none;">
+                        <label for="specialization" class="form-label">Specialization <span
+                                class="text-danger">*</span></label>
+                        <select class="form-select" id="specialization" name="specialization">
+                            <option value="">Select your specialization</option>
+                            <optgroup label="Primary Care">
+                                <option value="General Physician">General Physician</option>
+                            </optgroup>
+                            <optgroup label="Specialists">
+                                <option value="Cardiologist">Cardiologist (Heart Specialist)</option>
+                                <option value="Dermatologist">Dermatologist (Skin Specialist)</option>
+                                <option value="Endocrinologist">Endocrinologist (Hormone Specialist)</option>
+                                <option value="Gastroenterologist">Gastroenterologist (Digestive System Specialist)
+                                </option>
+                                <option value="Neurologist">Neurologist (Brain & Nerve Specialist)</option>
+                                <option value="Pulmonologist">Pulmonologist (Respiratory Specialist)</option>
+                                <option value="Orthopedic">Orthopedic Surgeon (Bone & Joint Specialist)</option>
+                                <option value="Ophthalmologist">Ophthalmologist (Eye Specialist)</option>
+                                <option value="ENT">ENT Specialist (Ear, Nose & Throat)</option>
+                                <option value="Nephrologist">Nephrologist (Kidney Specialist)</option>
+                                <option value="Urologist">Urologist (Urinary & Male Reproductive Specialist)</option>
+                                <option value="Psychiatrist">Psychiatrist (Mental Health Specialist)</option>
+                                <option value="Psychologist">Psychologist (Behavioral & Therapy Specialist)</option>
+                                <option value="Oncologist">Oncologist (Cancer Specialist)</option>
+                                <option value="Hematologist">Hematologist (Blood Disorder Specialist)</option>
+                                <option value="Immunologist">Immunologist (Immune System Specialist)</option>
+                                <option value="InfectiousDisease">Infectious Disease Specialist</option>
+                                <option value="GeneralSurgeon">General Surgeon</option>
+                                <option value="PlasticSurgeon">Plastic & Cosmetic Surgeon</option>
+                                <option value="Anesthesiologist">Anesthesiologist</option>
+                                <option value="Radiologist">Radiologist (Imaging Specialist)</option>
+                                <option value="Pathologist">Pathologist (Lab Diagnosis Specialist)</option>
+                                <option value="Gynecologist">Gynecologist (Women’s Health Specialist)</option>
+                                <option value="Obstetrician">Obstetrician (Pregnancy & Childbirth Specialist)</option>
+                                <option value="Pediatrician">Pediatrician (Child Specialist)</option>
+                                <option value="PediatricSurgeon">Pediatric Surgeon (Child Surgery Specialist)</option>
+                                <option value="Rheumatologist">Rheumatologist (Joint & Autoimmune Specialist)</option>
+                            </optgroup>
+                        </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Your specialization determines which types of cases will be assigned to you
+                        </div>
+                    </div>
+                    <div class="mb-3" id="contact_div" style="display: none;">
+    <label for="contact" class="form-label">
+        Emergency Contact Number <span class="text-danger">*</span>
+    </label>
+    <input type="tel" class="form-control" id="contact" name="contact"
+        placeholder="Enter phone number">
+</div>
+
+                    <!-- Doctor Age Range Fields -->
+                <div class="mb-4" id="age_group_div" style="display: none;">
+
+                    <label class="form-label fw-bold">
+                    Age Groups You Treat <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="row g-2">
+
+                    <div class="col-4">
+
+                    <input type="checkbox" class="btn-check" name="age_groups[]" id="age_child" value="Child">
+
+                    <label class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" for="age_child" style="height:50px">
+
+                    Child<br>(0–12)
+
+                    </label>
+
+                    </div>
+
+
+                    <div class="col-4">
+
+                    <input type="checkbox" class="btn-check" name="age_groups[]" id="age_adult" value="Adult">
+
+                    <label class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" for="age_adult" style="height:50px">
+
+                    Adult<br>(13–64)
+
+                    </label>
+
+                    </div>
+
+
+                    <div class="col-4">
+
+                    <input type="checkbox" class="btn-check" name="age_groups[]" id="age_old" value="Old Age">
+
+                    <label class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" for="age_old" style="height:50px">
+
+                    Old Age<br>(65+)
+
+                    </label>
+
+                    </div>
+
+                    </div>
+
+                    <div class="form-text mt-2">
+
+                    <i class="fas fa-info-circle me-1"></i>
+
+                    Select one or more age groups you treat.
+
+                    </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSpecialization() {
+
+    var userType = document.getElementById('user_type').value;
+
+    var specializationDiv = document.getElementById('specialization_div');
+    var specializationSelect = document.getElementById('specialization');
+
+    var ageDiv = document.getElementById('age_div');
+    var ageCategorySelect = document.getElementById('age_category');
+
+    var ageGroupDiv = document.getElementById('age_group_div');
+
+    // ✅ NEW
+    var contactDiv = document.getElementById('contact_div');
+    var contactInput = document.getElementById('contact');
+
+    if (userType === 'doctor') {
+
+        specializationDiv.style.display = 'block';
+        specializationSelect.required = true;
+
+        ageDiv.style.display = 'none';
+        ageCategorySelect.required = false;
+
+        ageGroupDiv.style.display = 'block';
+
+        // ✅ NEW
+        contactDiv.style.display = 'block';
+        contactInput.required = true;
+
+    } else {
+
+        specializationDiv.style.display = 'none';
+        specializationSelect.required = false;
+
+        ageDiv.style.display = 'block';
+        ageCategorySelect.required = true;
+
+        ageGroupDiv.style.display = 'none';
+
+        // ✅ NEW
+        contactDiv.style.display = 'none';
+        contactInput.required = false;
+    }
+}
+document.addEventListener("DOMContentLoaded", function () {
+        toggleSpecialization();  // ✅ run automatically
+    });
+</script>
+{% endblock %}

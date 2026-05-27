@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Header -->
+    <div class="col-12 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h2 class="mb-0">
+                    <i class="fas fa-disease me-2"></i>{{ prediction['disease'] }}
+                </h2>
+                <p class="mb-0 mt-2">
+                    <small>Recommended Specialist: <strong>{{ prediction['specialist'] }}</strong></small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Selection -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-user-md me-2 text-primary"></i>Select a Doctor
+                </h3>
+                <p class="text-muted small mt-2 mb-0">
+                    Showing {{ available_doctors|length }} available {{ prediction['specialist'] }}(s) - sorted by
+                    rating (highest to lowest)
+                </p>
+            </div>
+            <div class="card-body">
+                {% if available_doctors %}
+                <form method="POST" action="{{ url_for('book_appointment') }}">
+                    <div class="row">
+                        {% for doctor in available_doctors %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border-2 doctor-card"
+                                style="cursor: pointer; transition: all 0.3s ease;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">
+                                                <i class="fas fa-user-md me-2 text-primary"></i>Dr. {{ doctor['name'] }}
+                                            </h5>
+                                            <p class="text-muted small mb-0">{{ doctor['specialization'] }}</p>
+                                            <p class="text-muted small mb-0">
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ doctor['city'] }}
+                                            </p>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input doctor-radio" type="radio" name="doctor_id"
+                                                id="doctor_{{ doctor['doctor_id'] }}" value="{{ doctor['doctor_id'] }}"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subscription Status Badge -->
+                                    <div class="mb-3">
+                                        {% if not doctor['has_active_subscription'] %}
+                                        <div class="alert alert-warning py-2 px-3 mb-2">
+                                            <i class="fas fa-star me-1"></i><strong>Recommended</strong>
+                                            <small class="d-block">Available for new patients</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Rating -->
+                                    <div class="mb-3">
+                                        {% if doctor['review_count'] > 0 %}
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div>
+                                                {% for i in range(1, 6) %}
+                                                {% if i <= doctor['avg_rating'] %} <i class="fas fa-star text-warning">
+                                                    </i>
+                                                    {% else %}
+                                                    <i class="fas fa-star text-muted" style="opacity: 0.3;"></i>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                            </div>
+                                            <span class="badge bg-success">
+                                                {{ "%.1f"|format(doctor['avg_rating']) }} / 5.0
+                                            </span>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fas fa-comment me-1"></i>{{ doctor['review_count'] }} review{{ 's'
+                                            if doctor['review_count'] != 1 else '' }}
+                                        </small>
+                                        {% else %}
+                                        <div class="alert alert-info py-2 px-3 mb-0">
+                                            <small><i class="fas fa-info-circle me-1"></i>No reviews yet</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Ranking Badge -->
+                                    {% if loop.index == 1 %}
+                                    <div class="alert alert-success py-2 px-3 mb-0">
+                                        <i class="fas fa-crown me-1"></i><strong>Top Rated</strong>
+                                    </div>
+                                    {% elif loop.index <= 3 %} <div class="alert alert-info py-2 px-3 mb-0">
+                                        <i class="fas fa-medal me-1"></i><strong>#{{ loop.index }}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <a href="{{ url_for('patient_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+                <button type="submit" class="btn btn-primary ms-auto">
+                    <i class="fas fa-arrow-right me-1"></i>Continue with Selected Doctor
+                </button>
+            </div>
+            </form>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-user-md fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No doctors available</h5>
+                <p class="text-muted">Unfortunately, no {{ prediction['specialist'] }} is available for your age group
+                    at the moment.</p>
+                <a href="{{ url_for('patient_dashboard') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left me-1"></i>Go Back to Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    .doctor-card {
+        border-color: #e0e0e0;
+    }
+
+    .doctor-card:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .doctor-card input[type="radio"]:checked~.card-body,
+    .doctor-card:has(input[type="radio"]:checked) {
+        border-color: #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.02);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .form-check-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const doctorCards = document.querySelectorAll('.doctor-card');
+
+        doctorCards.forEach(card => {
+            card.addEventListener('click', function (e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

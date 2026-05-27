@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12 mb-4">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="mb-0">Disease Prediction Model Metrics</h2>
+                        <p class="mb-0">Model performance analysis and visualizations</p>
+                    </div>
+                    <i class="fas fa-chart-line fa-3x d-none d-sm-block"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle text-primary me-2"></i>About Model Evaluation</h5>
+                <p>These visualizations provide insights into the performance of our disease prediction model. They help us understand how accurate our predictions are, which symptoms are most important for diagnosis, and where the model might be making errors.</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Note:</strong> The model is regularly retrained with new data to improve its accuracy. These metrics represent the most recent evaluation results.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confusion Matrix -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-th me-2 text-primary"></i>Confusion Matrix
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">A confusion matrix shows how well our model is performing for each disease. The diagonal cells represent correct predictions, while off-diagonal cells show misclassifications.</p>
+                
+                {% if confusion_matrix %}
+                    <div class="text-center">
+                        <img src="data:image/png;base64,{{ confusion_matrix }}" class="img-fluid" alt="Confusion Matrix">
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confusion matrix data is not available. The model may need to be retrained with test data.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ROC Curves -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>ROC Curves
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">Receiver Operating Characteristic (ROC) curves illustrate the diagnostic ability of the model for each disease. A higher Area Under Curve (AUC) indicates better performance.</p>
+                
+                {% if roc_curve %}
+                    <div class="text-center">
+                        <img src="data:image/png;base64,{{ roc_curve }}" class="img-fluid" alt="ROC Curves">
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ROC curve data is not available. The model may need to be retrained with test data.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-weight-hanging me-2 text-primary"></i>Symptom Importance
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">This chart shows which symptoms are most important for disease prediction. Higher values indicate symptoms that have greater influence on the model's decisions.</p>
+                
+                {% if feature_importance %}
+                    <div class="text-center">
+                        <img src="data:image/png;base64,{{ feature_importance }}" class="img-fluid" alt="Feature Importance">
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Feature importance data is not available. The model may need to be retrained.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Classification Report -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-file-alt me-2 text-primary"></i>Classification Report
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">The classification report provides detailed metrics for each disease, including precision (how many predicted positives are actual positives), recall (how many actual positives were correctly identified), and F1-score (harmonic mean of precision and recall).</p>
+                
+                {% if classification_report %}
+                    <div class="text-center">
+                        <img src="data:image/png;base64,{{ classification_report }}" class="img-fluid" alt="Classification Report">
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Classification report data is not available. The model may need to be retrained with test data.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+                    </a>
+                    <!-- Future buttons for model retraining could go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
