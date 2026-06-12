@@ -1681,18 +1681,18 @@ if __name__ == '__main__':
         db.create_all()
         
         # Check if admin exists, create if not
-        admin = User.query.filter_by(email="admin@healthcare.com").first()
+        admin = User.query.filter_by(email="admin@12345.com").first()
         if not admin:
             admin = User(
                 email="admin@healthcare.com",
-                password_hash=generate_password_hash("admin123"),
+                password_hash=generate_password_hash("admin12345"),
                 name="System Administrator",
                 user_type='admin',
                 is_admin=True
             )
             db.session.add(admin)
             db.session.commit()
-            print("Default admin created: admin@healthcare.com / admin123")
+            print("Default admin created: admin@12345.com / admin12345")
             
     # Start the application
     app.run(debug=True, host='0.0.0.0', port=5000) 
