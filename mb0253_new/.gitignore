@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+instance/
+.env
+image.png
+a.py
+debug_doctors.py
+fix_data.py
+ml_model.pkl

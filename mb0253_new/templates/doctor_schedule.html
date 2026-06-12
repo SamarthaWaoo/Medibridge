@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Welcome Banner -->
+    <div class="col-12 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="mb-0">Manage Your Schedule</h2>
+                        <p class="mb-0">
+                            <i class="fas fa-user-md me-2"></i>Dr. {{ doctor.user.name }} - {{ doctor.specialization }}
+                        </p>
+                    </div>
+                    <i class="fas fa-calendar-alt fa-3x d-none d-sm-block"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Schedule -->
+    <div class="col-md-7 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-calendar-week me-2 text-primary"></i>Your Current Schedule
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if schedules %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Duration</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in schedules %}
+                                    <tr>
+                                        <td><strong>{{ day_names[schedule.day_of_week] }}</strong></td>
+                                        <td>{{ schedule.start_time.strftime('%H:%M') }}</td>
+                                        <td>{{ schedule.end_time.strftime('%H:%M') }}</td>
+                                        <td>{{ schedule.slot_duration }} min</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-schedule-btn"
+                                                    data-day="{{ schedule.day_of_week }}"
+                                                    data-start="{{ schedule.start_time.strftime('%H:%M') }}"
+                                                    data-end="{{ schedule.end_time.strftime('%H:%M') }}"
+                                                    data-duration="{{ schedule.slot_duration }}">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No schedule set yet</h5>
+                        <p class="text-muted">Use the form to add your availability schedule.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Schedule -->
+    <div class="col-md-5 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2 text-primary"></i><span id="form-title">Add Schedule</span>
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('manage_doctor_schedule') }}" id="scheduleForm">
+                    <div class="mb-3">
+                        <label for="day_of_week" class="form-label">Day of Week</label>
+                        <select class="form-select" id="day_of_week" name="day_of_week" required>
+                            {% for i in range(7) %}
+                                <option value="{{ i }}">{{ day_names[i] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label">Start Time</label>
+                        <input type="time" class="form-control" id="start_time" name="start_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label">End Time</label>
+                        <input type="time" class="form-control" id="end_time" name="end_time" required>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            End time should be later than start time
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="slot_duration" class="form-label">Appointment Duration (minutes)</label>
+                        <select class="form-select" id="slot_duration" name="slot_duration" required>
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>60 minutes (1 hour)</option>
+                            <option value="90">90 minutes (1.5 hours)</option>
+                            <option value="120">120 minutes (2 hours)</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Schedule
+                        </button>
+                        <a href="{{ url_for('doctor_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Guidelines -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2 text-primary"></i>Schedule Guidelines
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-lightbulb text-warning me-2"></i>Tips for Scheduling</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Set consistent hours for patient convenience</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Include buffer time between appointments</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Consider your typical consultation duration</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Update your schedule regularly</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-exclamation-triangle text-warning me-2"></i>Important Notes</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-info-circle text-info me-2"></i>Patients can only book during your scheduled hours</li>
+                            <li><i class="fas fa-info-circle text-info me-2"></i>Already booked appointments won't be affected when you update your schedule</li>
+                            <li><i class="fas fa-info-circle text-info me-2"></i>You'll receive notifications for new appointment bookings</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle edit schedule button clicks
+    const editButtons = document.querySelectorAll('.edit-schedule-btn');
+    const formTitle = document.getElementById('form-title');
+    const daySelect = document.getElementById('day_of_week');
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    const slotDurationSelect = document.getElementById('slot_duration');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get data from button attributes
+            const day = this.getAttribute('data-day');
+            const startTime = this.getAttribute('data-start');
+            const endTime = this.getAttribute('data-end');
+            const duration = this.getAttribute('data-duration');
+            
+            // Update form title
+            formTitle.textContent = 'Edit Schedule';
+            
+            // Set form values
+            daySelect.value = day;
+            startTimeInput.value = startTime;
+            endTimeInput.value = endTime;
+            slotDurationSelect.value = duration;
+            
+            // Scroll to form
+            document.getElementById('scheduleForm').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center py-5">
+    <div class="container py-5">
+        <h1 class="display-4 mb-4 fw-bold">Welcome to MediBridge - Intelligent Healthcare Navigation System</h1>
+        <p class="lead mb-4">Advanced healthcare solutions with AI-powered disease prediction and specialist consultation</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('register') }}?type=patient" class="btn btn-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Register as Patient
+            </a>
+            <a href="{{ url_for('register') }}?type=doctor" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-user-md me-2"></i>Register as Doctor
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-brain fa-3x" style="color: var(--primary-color);"></i>
+                </div>
+                <h4 class="card-title">AI Disease Prediction</h4>
+                <p class="card-text">Get instant disease predictions based on your symptoms using our advanced AI system.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-user-md fa-3x" style="color: var(--primary-color);"></i>
+                </div>
+                <h4 class="card-title">Expert Doctors</h4>
+                <p class="card-text">Connect with specialized doctors who provide expert medical consultation and care.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-clock fa-3x" style="color: var(--primary-color);"></i>
+                </div>
+                <h4 class="card-title">24/7 Availability</h4>
+                <p class="card-text">Access healthcare services and disease prediction system anytime, anywhere.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="card mb-5">
+    <div class="card-body">
+        <h2 class="text-center mb-4">How It Works</h2>
+        <div class="row">
+            <div class="col-md-3 text-center mb-3">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-user-plus fa-2x"></i>
+                </div>
+                <h5>1. Register</h5>
+                <p class="text-muted">Create your account as a patient or doctor</p>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-notes-medical fa-2x"></i>
+                </div>
+                <h5>2. Enter Symptoms</h5>
+                <p class="text-muted">Describe your symptoms in detail</p>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-stethoscope fa-2x"></i>
+                </div>
+                <h5>3. Get Prediction</h5>
+                <p class="text-muted">Receive AI-powered disease prediction</p>
+            </div>
+            <div class="col-md-3 text-center mb-3">
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-user-md fa-2x"></i>
+                </div>
+                <h5>4. Meet Doctor</h5>
+                <p class="text-muted">Connect with specialized doctors</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="row text-center mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="display-4 text-primary mb-2">500+</h3>
+                <p class="text-muted mb-0">Registered Doctors</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="display-4 text-primary mb-2">10K+</h3>
+                <p class="text-muted mb-0">Patients Served</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="display-4 text-primary mb-2">95%</h3>
+                <p class="text-muted mb-0">Accurate Predictions</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background-attachment: fixed;
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 3rem;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.8);
+    }
+    
+    .hero-section h1 {
+        text-shadow: 3px 3px 18px rgba(0, 0, 0, 0.9), 2px 2px 6px rgba(0, 0, 0, 0.7);
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: rgb(249, 253, 253);
+    }
+    
+    .hero-section .lead {
+        color: #fffdfd; 
+        text-shadow: 2px 2px 14px rgba(0, 0, 0, 0.85);
+        font-weight: 600;
+    }
+    
+    .hero-section .btn {
+        text-shadow: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const heroSection = document.querySelector('.hero-section');
+        const imageUrl = "{{ url_for('static', filename='images/image5.jpg') }}";
+        heroSection.style.backgroundImage = `url('${imageUrl}')`;
+        heroSection.style.backgroundSize = 'cover';
+        heroSection.style.backgroundPosition = 'center';
+    });
+</script>
+{% endblock %}

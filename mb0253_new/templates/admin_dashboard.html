@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Welcome Banner -->
+    <div class="col-12 mb-4">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="mb-0">Admin Dashboard</h2>
+                        <p class="mb-0">Welcome, {{ current_user.name }}</p>
+                    </div>
+                    <i class="fas fa-user-shield fa-3x d-none d-sm-block"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-primary mb-2">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <h5 class="card-title">Total Doctors</h5>
+                        <p class="display-6 mb-0">{{ doctors|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-success mb-2">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 class="card-title">Total Patients</h5>
+                        <p class="display-6 mb-0">{{ patients|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-info mb-2">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h5 class="card-title">Total Appointments</h5>
+                        <p class="display-6 mb-0">{{ appointments|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-cogs me-2 text-primary"></i>Admin Actions
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('create_admin') }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-1"></i>Create Admin User
+                    </a>
+                    <a href="{{ url_for('admin_subscriptions') }}" class="btn btn-success">
+                        <i class="fas fa-credit-card me-1"></i>Manage Subscriptions
+                    </a>
+                    <a href="{{ url_for('admin_view_doctors') }}" class="btn btn-warning">
+                        <i class="fas fa-users me-1"></i>View Doctors & Patients
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor List -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-user-md me-2 text-primary"></i>Doctors
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if doctors %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Specialization</th>
+                                <th>City</th>
+                                <th>Appointments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doctor in doctors %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-md fa-2x me-2 text-primary"></i>
+                                        <span>Dr. {{ doctor.user.name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ doctor.user.email }}</td>
+                                <td>{{ doctor.specialization }}</td>
+                                <td>{{ doctor.city }}</td>
+                                <td>{{ doctor.appointments|length }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <form method="POST"
+                                            action="{{ url_for('toggle_user_status', user_id=doctor.user.id) }}"
+                                            class="me-1">
+
+                                        </form>
+                                        <form method="POST"
+                                            action="{{ url_for('delete_user', user_id=doctor.user.id) }}"
+                                            onsubmit="return confirm('Are you sure you want to delete this doctor? All their appointments will also be deleted.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No doctors registered yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient List -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-users me-2 text-primary"></i>Patients
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Age Category</th>
+                                <th>City</th>
+                                <th>Appointments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user fa-2x me-2 text-success"></i>
+                                        <span>{{ patient.user.name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ patient.user.email }}</td>
+                                <td>{{ patient.age_category }}</td>
+                                <td>{{ patient.city }}</td>
+                                <td>{{ patient.appointments|length }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <form method="POST"
+                                            action="{{ url_for('toggle_user_status', user_id=patient.user.id) }}"
+                                            class="me-1">
+
+                                        </form>
+                                        <form method="POST"
+                                            action="{{ url_for('delete_user', user_id=patient.user.id) }}"
+                                            onsubmit="return confirm('Are you sure you want to delete this patient? All their appointments will also be deleted.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No patients registered yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>Recent Appointments
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th class="d-none d-md-table-cell">Predicted Disease</th>
+                                <th class="d-none d-md-table-cell">Symptoms</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set recent_appointments = appointments|sort(attribute='date_created', reverse=true) %}
+                            {% for appointment in recent_appointments[:10] %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user fa-lg me-2 text-success"></i>
+                                        <span>{{ appointment.patient.user.name }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-md fa-lg me-2 text-primary"></i>
+                                        <div>
+                                            <span>Dr. {{ appointment.doctor.user.name }}</span>
+                                            <small class="text-muted d-block">{{ appointment.doctor.specialization
+                                                }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="d-none d-md-table-cell">{{ appointment.predicted_disease }}</td>
+                                <td class="d-none d-md-table-cell">
+                                    <small>{{ appointment.symptoms }}</small>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge bg-{{ 'success' if appointment.status == 'completed' else 'warning' }}">
+                                        {{ appointment.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ appointment.date_created.strftime('%Y-%m-%d %H:%M') }}
+                                    </small>
+                                    {% if appointment.appointment_date %}
+                                    <div class="small text-success mt-1">
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ appointment.appointment_date.strftime('%b %d, %Y') }}
+                                        {% if appointment.time_slot %}
+                                        at {{ appointment.time_slot }}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No appointments yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

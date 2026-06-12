@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h1 class="display-4 mb-2">{{ patient.user.name }}</h1>
+                    <p class="lead text-muted">
+                        <i class="fas fa-user me-2"></i>Patient Details
+                    </p>
+                </div>
+                <a href="{{ url_for('admin_view_doctors') }}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Info Card -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-circle me-2"></i>Patient Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted small mb-1">Name</p>
+                            <p class="fw-semibold">{{ patient.user.name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted small mb-1">Email</p>
+                            <p class="fw-semibold">{{ patient.user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted small mb-1">Age Category</p>
+                            <p class="fw-semibold">{{ patient.age_category }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted small mb-1">City</p>
+                            <p class="fw-semibold">{{ patient.city }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted small mb-1">Total Appointments</p>
+                            <p class="fw-semibold">{{ appointments|length }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg bg-light">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Statistics
+                    </h5>
+                    <div class="mb-4">
+                        <p class="text-muted small mb-1">Total Appointments</p>
+                        <h3 class="display-6 mb-0">{{ appointments|length }}</h3>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-muted small mb-1">Medical Notes</p>
+                        <h3 class="display-6 mb-0">
+                            {% set total_notes = all_notes.values()|map(attribute='__len__')|sum %}
+                            {{ total_notes }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments and Medical Notes -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-calendar me-2 text-primary"></i>Appointment History
+            </h2>
+
+            {% if appointments %}
+            <div class="accordion" id="appointmentsAccordion">
+                {% for appointment in appointments %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button {% if loop.first %}{% else %}collapsed{% endif %}" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#appointment{{ appointment.id }}"
+                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
+                            aria-controls="appointment{{ appointment.id }}">
+                            <div class="w-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ appointment.date_created.strftime('%Y-%m-%d %H:%M') }}</strong>
+                                        <span
+                                            class="badge {% if appointment.status == 'completed' %}bg-success{% elif appointment.status == 'accepted' %}bg-info{% else %}bg-warning{% endif %} ms-2">
+                                            {{ appointment.status|upper }}
+                                        </span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="mb-0 text-muted small">
+                                            <i class="fas fa-user-md me-1"></i>{{ appointment.doctor.user.name }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="appointment{{ appointment.id }}"
+                        class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                        data-bs-parent="#appointmentsAccordion">
+                        <div class="accordion-body">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">Symptoms</p>
+                                    <p class="fw-semibold">{{ appointment.symptoms }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">Predicted Disease</p>
+                                    <p class="fw-semibold">{{ appointment.predicted_disease }}</p>
+                                </div>
+                            </div>
+
+                            {% if appointment.appointment_date %}
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">Appointment Date</p>
+                                    <p class="fw-semibold">{{ appointment.appointment_date.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">Time Slot</p>
+                                    <p class="fw-semibold">{{ appointment.time_slot }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Medical Notes -->
+                            {% if appointment.id in all_notes %}
+                            <div class="mt-4 pt-4 border-top">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-file-medical me-2 text-primary"></i>Medical Notes
+                                </h6>
+                                {% for note in all_notes[appointment.id] %}
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <p class="fw-semibold mb-0">{{ note.doctor.user.name }}</p>
+                                                <small class="text-muted">{{ note.date_created.strftime('%Y-%m-%d
+                                                    %H:%M') }}</small>
+                                            </div>
+                                            {% if note.is_private %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-lock me-1"></i>Private
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="mb-0">{{ note.content }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                <i class="fas fa-info-circle me-2"></i>No appointments found for this patient.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

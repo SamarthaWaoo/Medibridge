@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-2">My Subscription</h1>
+            <p class="lead text-muted">Manage your subscription plan and billing</p>
+        </div>
+    </div>
+
+    {% if active_subscription %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg border-start border-5 border-success">
+                <div class="card-body">
+                    <div class="row align-items-start">
+                        <div class="col-md-8">
+                            <h2 class="card-title h3 mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>Active Subscription
+                                {% if active_subscription.status == 'pending_payment' %}
+                                <span class="badge bg-warning text-dark ms-2"
+                                    style="font-size: 0.5em; vertical-align: middle;">PENDING VERIFICATION</span>
+                                {% endif %}
+                            </h2>
+                            <p class="text-muted mb-4">
+                                {% if active_subscription.status == 'pending_payment' %}
+                                Your payment is being verified by the admin. The subscription will be activated shortly.
+                                {% else %}
+                                You are currently subscribed to the <strong>{{ active_subscription.plan.name }}</strong>
+                                plan
+                                {% endif %}
+                            </p>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6 col-md-3">
+                                    <p class="text-muted small mb-1">Plan</p>
+                                    <p class="fw-semibold">{{ active_subscription.plan.name }}</p>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <p class="text-muted small mb-1">Monthly Cost</p>
+                                    <p class="fw-semibold">₹{{ active_subscription.plan.price|int }}</p>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <p class="text-muted small mb-1">Expires</p>
+                                    <p class="fw-semibold">{{ active_subscription.end_date.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <p class="text-muted small mb-1">Appointments Used</p>
+                                    <p class="fw-semibold">{{ active_subscription.appointments_used }}/{{
+                                        active_subscription.plan.max_appointments }}</p>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-muted small mb-2">Appointment Usage</p>
+                                {% set usage_percent = (active_subscription.appointments_used /
+                                active_subscription.plan.max_appointments * 100)|int %}
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-primary" role="progressbar"
+                                        style="width: {{ usage_percent }}%" aria-valuenow="{{ usage_percent }}"
+                                        aria-valuemin="0" aria-valuemax="100">
+                                        {{ usage_percent }}%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="fw-semibold mb-3">Plan Features:</p>
+                                <div class="row g-2">
+                                    {% for feature in active_subscription.plan.features.split(',') %}
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            <span>{{ feature.strip() }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <form method="POST"
+                                action="{{ url_for('cancel_subscription', subscription_id=active_subscription.id) }}"
+                                onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
+                                <button type="submit" class="btn btn-danger btn-lg w-100">
+                                    <i class="fas fa-times me-2"></i>Cancel Subscription
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i><strong>No Active Subscription:</strong> You don't have
+                an active subscription. Choose a plan below to get started.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-box me-2 text-primary"></i>Available Plans
+            </h2>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        {% for plan in available_plans %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-lg h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-1 text-white">{{ plan.name }}</h5>
+                    <small class="text-white-50">{{ plan.description }}</small>
+                </div>
+
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h3 class="display-6 mb-0">₹{{ plan.price|int }}<small class="text-muted">/month</small></h3>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="mb-2"><strong>Duration:</strong> {{ plan.duration_days }} days</p>
+                        <p class="mb-3"><strong>Max Appointments:</strong> {{ plan.max_appointments }}/month</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="fw-semibold mb-2">Features:</p>
+                        <ul class="list-unstyled">
+                            {% for feature in plan.features.split(',') %}
+                            <li class="d-flex align-items-start mb-2">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <span>{{ feature.strip() }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if active_subscription and active_subscription.plan_id == plan.id %}
+                    <button disabled class="btn btn-secondary w-100">
+                        <i class="fas fa-check me-1"></i>Current Plan
+                    </button>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('subscribe_to_plan', plan_id=plan.id) }}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-shopping-cart me-1"></i>Subscribe Now
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not available_plans %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                <i class="fas fa-info-circle me-2"></i>No subscription plans available at the moment.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if all_subscriptions %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="h3 mb-4">
+                <i class="fas fa-history me-2 text-primary"></i>Subscription History
+            </h2>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-box me-2"></i>Plan</th>
+                            <th><i class="fas fa-calendar-alt me-2"></i>Start Date</th>
+                            <th><i class="fas fa-calendar-check me-2"></i>End Date</th>
+                            <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                            <th><i class="fas fa-dollar-sign me-2"></i>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in all_subscriptions %}
+                        <tr>
+                            <td><strong>{{ sub.plan.name }}</strong></td>
+                            <td>{{ sub.start_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ sub.end_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if sub.status == 'active' %}bg-success{% elif sub.status == 'pending_payment' %}bg-warning{% elif sub.status == 'expired' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ sub.status|replace('_', ' ')|upper }}
+                                </span>
+                            </td>
+                            <td><strong>₹{{ sub.plan.price|int }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

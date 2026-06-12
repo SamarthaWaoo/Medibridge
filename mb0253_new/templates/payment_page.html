@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-2">Complete Your Subscription</h1>
+            <p class="lead text-muted">Secure payment for {{ plan.name }} plan</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Payment Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('process_payment', plan_id=plan.id) }}">
+                        <!-- Hidden Payment Method -->
+                        <input type="hidden" name="payment_method" value="qr_code">
+
+                        <!-- QR Code Section -->
+                        <div id="qr_code_details"
+                            class="mb-5 p-4 bg-light rounded text-center animate__animated animate__zoomIn">
+                            <div class="mb-4 text-primary">
+                                <i class="fas fa-qrcode fa-3x"></i>
+                                <h4 class="mt-2">Scan & Pay via UPI</h4>
+                            </div>
+
+                           <form method="POST">
+
+                                <img src="{{ url_for('static', filename='images/my_qr.png') }}" 
+                                    alt="Payment QR Code" 
+                                    class="img-fluid" 
+                                    style="max-width: 250px;">
+
+                                <br><br>
+
+                                <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+                                    <i class="fas fa-check-circle me-2"></i>Confirm Payment
+                                </button>
+
+                            </form>
+
+                            <div class="mb-4">
+                                <p class="h3 text-dark mb-1">₹{{ plan.price|int }}</p>
+                                <p class="text-muted">Use Any UPI App: Google Pay, PhonePe, Paytm</p>
+                            </div>
+
+                            <div class="d-flex justify-content-center gap-3 mb-4">
+                                <i class="fab fa-google-pay fa-2x text-muted"></i>
+                                <i class="fas fa-mobile-alt fa-2x text-muted"></i>
+                                <i class="fas fa-university fa-2x text-muted"></i>
+                            </div>
+
+                            <div class="alert alert-success border-0 small mb-0 mx-auto" style="max-width: 400px;">
+                                <i class="fas fa-shield-alt me-2"></i>Secure transaction for <strong>{{ plan.name }}
+                                    Plan</strong>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4 text-center">
+                            <div class="form-check d-inline-block">
+                                <input class="form-check-input" type="checkbox" id="terms" name="terms" required
+                                    checked>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-3 d-md-flex justify-content-center">
+                            <a href="{{ url_for('doctor_subscriptions') }}"
+                                class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+                                <i class="fas fa-check-circle me-2"></i>Proceed After Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-receipt me-2"></i>Order Summary
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="mb-4 pb-4 border-bottom">
+                        <p class="text-muted small mb-1">Plan</p>
+                        <p class="fw-semibold mb-3">{{ plan.name }}</p>
+
+                        <p class="text-muted small mb-1">Description</p>
+                        <p class="small mb-3">{{ plan.description }}</p>
+
+                        <p class="text-muted small mb-1">Duration</p>
+                        <p class="small mb-3">{{ plan.duration_days }} days</p>
+
+                        <p class="text-muted small mb-1">Max Appointments</p>
+                        <p class="small">{{ plan.max_appointments }} per month</p>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <p class="text-muted">Subtotal</p>
+                            <p class="fw-semibold">₹{{ plan.price|int }}</p>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <p class="text-muted">Tax</p>
+                            <p class="fw-semibold">₹0</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p class="h5 mb-0">Total</p>
+                            <p class="h5 mb-0 text-primary">₹{{ plan.price|int }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Features List -->
+                    <div>
+                        <p class="fw-semibold small mb-3">What's Included:</p>
+                        <ul class="list-unstyled">
+                            {% for feature in plan.features.split(',') %}
+                            <li class="d-flex align-items-start mb-2 small">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <span>{{ feature.strip() }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // No additional scripts needed for QR-only payment flow
+</script>
+{% endblock %}

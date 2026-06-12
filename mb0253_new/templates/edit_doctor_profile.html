@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-4 mb-2">Edit Profile</h1>
+            <p class="lead text-muted">Update your professional information</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('edit_doctor_profile') }}">
+                        <!-- License Number -->
+                        <div class="mb-4">
+                            <label for="license_number" class="form-label fw-semibold">Medical License Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" id="license_number" name="license_number"
+                                class="form-control form-control-lg" value="{{ doctor.license_number or '' }}"
+                                placeholder="e.g., MCI-12345678">
+                            <small class="form-text text-muted d-block mt-2">Your official medical license
+                                number</small>
+                        </div>
+
+                        <!-- City -->
+                        <div class="mb-4">
+                            <label for="city" class="form-label fw-semibold">City <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" id="city" name="city" class="form-control form-control-lg"
+                                value="{{ doctor.city or '' }}" placeholder="e.g., Mumbai" required>
+                            <small class="form-text text-muted d-block mt-2">Your current practicing city</small>
+                        </div>
+
+
+                        <div class="mb-4">
+    <label for="contact" class="form-label fw-semibold">
+        Contact Number <span class="text-danger">*</span>
+    </label>
+    <input type="tel" id="contact" name="contact"
+        class="form-control form-control-lg"
+        value="{{ doctor.contact or '' }}"
+        placeholder="e.g., 9876543210" required>
+    <small class="form-text text-muted d-block mt-2">
+        This number will be used by patients to contact you
+    </small>
+</div>
+
+
+                        <!-- License Expiry -->
+                        <div class="mb-4">
+                            <label for="license_expiry" class="form-label fw-semibold">License Expiry Date <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" id="license_expiry" name="license_expiry"
+                                class="form-control form-control-lg"
+                                value="{% if doctor.license_expiry %}{{ doctor.license_expiry.strftime('%Y-%m-%d') }}{% endif %}">
+                            <small class="form-text text-muted d-block mt-2">When your license expires</small>
+                        </div>
+
+                        <!-- Experience Years -->
+                        <div class="mb-4">
+                            <label for="experience_years" class="form-label fw-semibold">Years of Experience</label>
+                            <input type="number" id="experience_years" name="experience_years"
+                                class="form-control form-control-lg" value="{{ doctor.experience_years or '' }}"
+                                placeholder="e.g., 10" min="0">
+                            <small class="form-text text-muted d-block mt-2">Total years of medical practice</small>
+                        </div>
+
+                        <!-- Qualifications -->
+                        <div class="mb-4">
+                            <label for="qualifications" class="form-label fw-semibold">Qualifications</label>
+                            <textarea id="qualifications" name="qualifications" rows="4"
+                                class="form-control form-control-lg"
+                                placeholder="List your qualifications separated by commas&#10;e.g., MBBS, MD (Internal Medicine), DM (Cardiology)">{{ doctor.qualifications or '' }}</textarea>
+                            <small class="form-text text-muted d-block mt-2">Separate multiple qualifications with
+                                commas</small>
+                        </div>
+
+                        <!-- Hospital Affiliation -->
+                        <div class="mb-4">
+                            <label for="hospital_affiliation" class="form-label fw-semibold">Hospital/Clinic
+                                Affiliation</label>
+                            <input type="text" id="hospital_affiliation" name="hospital_affiliation"
+                                class="form-control form-control-lg" value="{{ doctor.hospital_affiliation or '' }}"
+                                placeholder="e.g., City Medical Center">
+                            <small class="form-text text-muted d-block mt-2">Your current hospital or clinic
+                                name</small>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="mb-4">
+                            <label for="bio" class="form-label fw-semibold">Professional Bio</label>
+                            <textarea id="bio" name="bio" rows="5" class="form-control form-control-lg"
+                                placeholder="Write a brief professional biography...">{{ doctor.bio or '' }}</textarea>
+                            <small class="form-text text-muted d-block mt-2">Tell patients about yourself and your
+                                expertise</small>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Complete your profile information to help the admin verify your
+                            credentials faster. All information will be visible to patients.
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('doctor_profile') }}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

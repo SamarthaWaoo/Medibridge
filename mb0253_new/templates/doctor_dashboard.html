@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Welcome Banner -->
+    <div class="col-12 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="mb-0">Welcome, Dr. {{ current_user.name }}</h2>
+                        <p class="mb-0">
+                            <i class="fas fa-user-md me-2"></i>{{ doctor.specialization }}
+                        </p>
+                    </div>
+                    <i class="fas fa-user-md fa-3x d-none d-sm-block"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-12 mb-4">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-primary mb-2">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h5 class="card-title">Total Appointments</h5>
+                        <p class="display-6 mb-0">{{ appointments|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-warning mb-2">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h5 class="card-title">Pending</h5>
+                        <p class="display-6 mb-0">{{ appointments|selectattr('status', 'equalto', 'pending')|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="display-4 text-success mb-2">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h5 class="card-title">Completed</h5>
+                        <p class="display-6 mb-0">{{ appointments|selectattr('status', 'equalto', 'completed')|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Actions -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-tools me-2 text-primary"></i>Quick Actions
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('doctor_profile') }}" class="btn btn-info">
+                        <i class="fas fa-user-circle me-1"></i>My Profile
+                    </a>
+                    <a href="{{ url_for('manage_doctor_schedule') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>Manage Your Schedule
+                    </a>
+                    <a href="{{ url_for('doctor_subscriptions') }}" class="btn btn-success">
+                        <i class="fas fa-credit-card me-1"></i>My Subscription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments List -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>Your Appointments
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Disease</th>
+                                    <th class="d-none d-md-table-cell">Symptoms</th>
+                                    <th class="d-none d-md-table-cell">Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for appointment in appointments %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle fa-2x me-2 text-primary d-none d-sm-block"></i>
+                                            <div>
+                                                <strong class="d-block">{{ appointment.patient.user.name }}</strong>
+                                                <small class="text-muted d-md-none">
+                                                    {{ appointment.date_created.strftime('%Y-%m-%d') }}
+                                                </small>
+                                                <a href="{{ url_for('view_patient_history', patient_id=appointment.patient.id) }}" class="small text-primary">
+                                                    <i class="fas fa-history me-1"></i>View History
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-primary">
+                                            <i class="fas fa-disease me-1"></i>
+                                            {{ appointment.predicted_disease }}
+                                        </span>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        <small>{{ appointment.symptoms }}</small>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ appointment.date_created.strftime('%Y-%m-%d %H:%M') }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if appointment.status == 'completed' else 'warning' }}">
+                                            {{ appointment.status }}
+                                        </span>
+                                        {% if appointment.appointment_date %}
+                                        <div class="small text-success mt-1">
+                                            <i class="fas fa-calendar-day me-1"></i>
+                                            {{ appointment.appointment_date.strftime('%b %d') }}
+                                            {% if appointment.time_slot %}
+                                                at {{ appointment.time_slot }}
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('update_appointment_status', appointment_id=appointment.id) }}" 
+                                              class="d-flex gap-2 flex-wrap">
+                                            <select name="status" class="form-select form-select-sm" style="width: 120px;">
+                                                <option value="pending" {% if appointment.status == 'pending' %}selected{% endif %}>Pending</option>
+                                                <option value="accepted" {% if appointment.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                                                <option value="completed" {% if appointment.status == 'completed' %}selected{% endif %}>Completed</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                            <a href="{{ url_for('view_patient_history', patient_id=appointment.patient.id) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-file-medical-alt"></i>
+                                            </a>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">No appointments yet</h5>
+                        <p class="text-muted">You'll see your appointments here once patients are assigned to you.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
