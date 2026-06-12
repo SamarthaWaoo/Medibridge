@@ -2,21 +2,16 @@ import google.generativeai as genai
 import os
 
 class GeminiChatbot:
-    def __init__(self, api_key=None):
-        """Initialize Gemini chatbot with API key"""
-        if api_key is None:
-            # Try to get from environment variable first
-            api_key = os.getenv('GEMINI_API_KEY', '')
-            # If not found, use hardcoded key
-            if not api_key:
-                api_key = 'AIzaSyAE8guHbUNamyg3Z9WIda2A5V4WRPsAmdU'
-        
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY not configured")
-        
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
-        self.chat_history = []
+   def __init__(self, api_key=None):
+    if api_key is None:
+        api_key = os.getenv('GEMINI_API_KEY', '')
+    
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY not configured")
+    
+    genai.configure(api_key=api_key)
+    self.model = genai.GenerativeModel('gemini-2.5-flash')
+    self.chat_history = []
     
     def get_home_remedy_advice(self, symptoms):
         """Get home remedy suggestions for given symptoms"""
